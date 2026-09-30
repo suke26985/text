@@ -1,0 +1,43 @@
+#include<Servo.h>
+Servo base,fArm,rArm,claw;
+int dataIndex=0;
+void setup() {
+  // put your setup code here, to run once:
+base.attach(11);
+rArm.attach(10);
+fArm.attach(9);
+claw.attach(6);
+Serial.begin(9600);
+Serial.println("Please input serial data");
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+  if(Serial.available()){
+  char servoName=Serial.read();
+  Serial.print("servoName=");
+  Serial.print(servoName);
+  int data=Serial.parseInt();
+    switch(servoName){
+      case'b':
+      base.write(data);
+      Serial.print("set base servo value:")
+      Serial.println(data);
+      break;
+      case'r':
+      rArm.write(data);
+      Serial.print("set rArm servo value:")
+      Serial.println(data);
+      break;
+      case'f':
+      fArm.write(data);
+      Serial.print("set fArm servo value:")
+      Serial.println(data);
+      break;
+      case'c':
+      claw.write(data);
+      Serial.print("set claw servo value:")
+      Serial.println(data);
+      break;
+      }
+  }
+}
