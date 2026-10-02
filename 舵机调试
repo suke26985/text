@@ -1,12 +1,12 @@
 #include<Servo.h>
 Servo base,fArm,rArm,claw;
-int basePos=90,fArmpos=90,rArmpse=90;clawpos=90;
-const int baseMin,baseMax,rArmMin,rArmMax,fArmMin,fArmMax,clawMin,clawMax;
+int basePos=90,fArmPos=90,rArmPos=90,clawPos=90;
+const int baseMin=0,baseMax=180,rArmMin0,rArmMax=180,fArmMin=30,fArmMax=125,clawMin=20,clawMax=110;
 void setup() {
   // put your setup code here, to run once:
-base.attach(11);
-fArm.attach(10);
-rArm.attach(9);
+base.attach(9);
+fArm.attach(8);
+rArm.attach(7);
 claw.attach(6);
 Serial.begin(9600);
 Serial.println("Please input Serial value");
@@ -16,14 +16,14 @@ void loop() {
   // put your main code here, to run repeatedly:
   if(Serial.available()>0){
     char SerialCmd=Serial.read();
-    armDateCmd(SerialCmd);
+    armDataCmd(SerialCmd);
     base.write(basePos);
     delay(10);
-    fArm.write(fArmpos);
+    fArm.write(fArmPos);
      delay(10);
-    rArm.write(rArmpos);
+    rArm.write(rArmPos);
      delay(10);
-    claw.write(clawpos);
+    claw.write(clawPos);
      delay(10);
     }
 }
@@ -34,21 +34,24 @@ Serial.print(" ");
 int servoData=Serial.parseInt();
   switch(SerialCmd){
   case'b':
-  basePos=ServoData;
+  basePos=servoData;
   Serial.print("Set base Servo value:");
-  Serial.println(ServoData);
+  Serial.println(servoData);
+  break;
   case'f':
-  fArmPos=ServoData;
+  fArmPos=servoData;
   Serial.print("Set fArm Servo value:");
-  Serial.println(ServoData);
+  Serial.println(servoData);
+  break;
   case'r':
-  rArmPos=ServoData;
+  rArmPos=servoData;
   Serial.print("Set rArm Servo value:");
-  Serial.println(ServoData);
+  Serial.println(servoData);
+  break;
   case'c':
-  clawPos=ServoData;
+  clawPos=servoData;
   Serial.print("Set claw Servo value:");
-  Serial.println(ServoData);
+  Serial.println(servoData);
   break;
   }
 }
