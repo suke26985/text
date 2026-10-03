@@ -1,0 +1,238 @@
+#include<Servo.h>
+Servo base,fArm,rArm,claw;//base是底座 fArm是前臂左边舵机 rArm是后臂右边舵机 claw是夹爪舵机
+int basePos=90,fArmPos=90,rArmPos=90,clawPos=90;
+const int baseMin=0,baseMax=180,rArmMin=0,rArmMax=180,fArmMin=30,fArmMax=125,clawMin=20,clawMax=130;
+int DSD=10; //默认电机速度Default Servo Delay
+int fromPos,toPos;
+void setup() {
+base.attach(9);
+delay(200);
+fArm.attach(8);
+delay(200);
+rArm.attach(7);
+delay(200);
+claw.attach(6);
+delay(200);
+Serial.begin(9600);
+Serial.println("Please input Serial value");
+}
+
+void loop() {
+  if(Serial.available()>0){
+    char SerialCmd=Serial.read();
+    armDataCmd(SerialCmd);   
+    }
+}
+
+
+void armDataCmd(char serialCmd){
+  if(serialCmd=='b'||serialCmd=='f'||serialCmd=='r'||serialCmd=='c'){
+    int servoData=Serial.parseInt();
+    servoCmd(serialCmd,servoData,DSD);
+    }
+  else{
+      switch(serialCmd){
+        case'u':
+          reportStatus();
+          break;
+        case'O':
+          servoCmd('c',20,DSD);
+        break;
+        case'S':
+          servoCmd('c',125,DSD);
+        break;
+        case'H':
+          DSD=5;
+          break;
+        case'L':
+          DSD=15;
+          break;
+        case'I':
+          DSD=10;
+          back();
+          break;
+        case'A':
+          playA();
+          break;
+        case'B':
+          playB();
+          break;
+        case'C':
+          playC();
+          break;
+        }
+    }   
+}
+
+
+//在servoCmd原有基础上改armDataCmd
+void servoCmd(char servoName,int toPos,int servoDelay){
+  Servo servo2go; 
+    switch(servoName){
+      case'b':
+      if(toPos>=baseMin&&toPos<=baseMax){
+        servo2go=base;
+        fromPos=base.read();
+        break;
+        }
+      else{
+        Serial.println("Warning:Base Servo Value Out Of Limit!");
+        return;
+        }
+      case'f':
+      if(toPos>=fArmMin&&toPos<=fArmMax){
+        servo2go=fArm;
+        fromPos=fArm.read();
+        break;
+        }
+      else{
+        Serial.println("Warning:fArm Servo Value Out Of Limit!");
+        return;
+        }
+        case'r':
+        if(toPos>=rArmMin&&toPos<=rArmMax){
+        servo2go=rArm;
+        fromPos=rArm.read();
+        break;
+        }
+      else{
+        Serial.println("Warning:rArm Servo Value Out Of Limit!");
+        return;
+        }
+        case'c':
+      if(toPos>=clawMin&&toPos<=clawMax){
+        servo2go=claw;
+        fromPos=claw.read();
+        break;
+        }
+      else{
+        Serial.println("Warning:Claw Servo Value Out Of Limit!");
+        return;
+        } 
+    }  
+    if(fromPos<=toPos){
+        for(int i=fromPos;i<=toPos;i++){
+        servo2go.write(i);
+        delay(servoDelay);
+        }
+    }
+    else{
+        for(int i=fromPos;i>=toPos;i--){
+        servo2go.write(i);
+        delay(servoDelay);
+        } 
+    }       
+}
+void reportStatus(){
+  Serial.println("");
+  Serial.println("+ Robot-Arm Status Report +");
+  Serial.print("Base Position: "); Serial.println(base.read());
+  Serial.print("Front Arm Position:"); Serial.println(fArm.read());
+  Serial.print("Rear  Arm Position:"); Serial.println(rArm.read());
+  Serial.print("Claw Position: "); Serial.println(claw.read());
+  Serial.println("++++++++++++++++++++++++++");
+  Serial.println("");
+  }
+//夹取基本框架
+void back(){
+  int backPosArray[4][3]={
+    {'f',90,DSD},
+    {'r',90,DSD},
+    {'b',90,DSD},
+    {'c',90,DSD},
+    };
+  for(int i=0;i<4;i++){
+    servoCmd(backPosArray[i][0],backPosArray[i][1],backPosArray[i][2]);
+    }
+}  
+
+void playA(){
+  back();
+    int aPosArray[3][4][3]={
+        {
+        {'c',20,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'f',90,DSD},
+        {'r',90,DSD},
+        {'b',90,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'b',135,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',20,DSD},
+        },
+      };
+      servoCmd('b',90,DSD);
+      for(int i=0;i<3;i++){
+         for(int j=0;j<4;j++){
+          servoCmd(aPosArray[i][j][0],aPosArray[i][j][1],aPosArray[i][j][2]);
+         }
+      }   
+  back();
+}
+void playB(){
+   back();
+    int bPosArray[3][4][3]={
+        {
+        {'c',20,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'f',90,DSD},
+        {'r',90,DSD},
+        {'b',90,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'b',45,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',20,DSD},
+        },
+      };
+      servoCmd('b',90,DSD);
+      for(int i=0;i<3;i++){
+         for(int j=0;j<4;j++){
+          servoCmd(bPosArray[i][j][0],bPosArray[i][j][1],bPosArray[i][j][2]);
+         }
+      }   
+  back();
+  }
+void playC(){
+   back();
+    int cPosArray[3][4][3]={
+        {
+        {'c',20,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'f',90,DSD},
+        {'r',90,DSD},
+        {'b',90,DSD},
+        {'c',125,DSD},
+        },
+        {
+        {'b',0,DSD},
+        {'f',30,DSD},
+        {'r',160,DSD},
+        {'c',20,DSD},
+        },
+      };
+      servoCmd('b',180,DSD);
+      for(int i=0;i<3;i++){
+         for(int j=0;j<4;j++){
+          servoCmd(cPosArray[i][j][0],cPosArray[i][j][1],cPosArray[i][j][2]);
+         }
+      }   
+  back();
+  }
